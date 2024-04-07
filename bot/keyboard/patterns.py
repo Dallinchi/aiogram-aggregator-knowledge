@@ -25,6 +25,7 @@ knows_menu = (
     f"Параметры запроса:\
         Название темы: {None, str}\
         Теги: {None, list[str]}\
+        Решено: {None, bool}\
         Сортировка: {str}\
     ",
     #reply_markup
