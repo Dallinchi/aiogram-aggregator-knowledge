@@ -1,11 +1,13 @@
 from aiogram import types, Bot
+from aiogram import Router
 from aiogram.filters.command import Command
-
-from bot.config import dp
 
 LARGE_FILE = '/home/tlinmo/file.mp4'
 
-@dp.message(Command('largefile'))
+router = Router(name='large_file-router')
+
+
+@router.message(Command('largefile'))
 async def large_file(message: types.Message, bot: Bot):
     await bot.send_video(
         chat_id=message.from_user.id,
