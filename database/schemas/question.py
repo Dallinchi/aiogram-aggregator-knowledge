@@ -1,21 +1,15 @@
 from pydantic import BaseModel
-from typing import List
 
-from database.schemas.user import UserCreate
-from database.schemas.answer import Answer
-
-class QuestionBase(BaseModel):
-    id: int
-    title: str
     
-class Question(QuestionBase):
-    tag: List[str]
+class Question(BaseModel):
+    title: str
+    tag: str
     text: str
-    media: str
-    reaction: str
-    owner: UserCreate
-    status: bool
-    answers: List[Answer]
+    media: str | None = None
+    reaction: str | None = None
+    status: bool = False
+    owner_id: int
+
     class Config:
         orm_mode = True
 

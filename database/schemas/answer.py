@@ -1,14 +1,8 @@
 from pydantic import BaseModel
-from typing import List
-
-from database.schemas.user import UserCreate
-from database.schemas.question import QuestionBase
-
     
 class Answer(BaseModel):
-    id: int
     answer: str
-    reputation: int
+    reputation: int = 0
     question_id: int
     user_id: int
     
