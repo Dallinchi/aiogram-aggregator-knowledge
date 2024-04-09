@@ -49,20 +49,6 @@ async def command_get_question(message: Message) -> None:
     question = await crud.get_question_by_id(1)
     await message.answer(f"Запрос найден!")
     
-@router.message(Command('search_questions'))
-async def command_search_questions(message: Message) -> None:
-    await message.answer('Запрос -> что делать')
-    questions = await crud.search_questions('Что делать')
-    for q in questions:
-        await message.answer(q.title)
-    
-    # Сработает, т.к ищем и по тексту
-    await message.answer('Запрос -> как носить')
-    questions = await crud.search_questions('как носить')
-    for q in questions:
-        await message.answer(q.title)
-        
-
 @router.message()
 async def command_search_questions(message: Message) -> None:
     await message.answer(f'Поиск по запросам -> {message.text}')

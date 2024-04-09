@@ -110,7 +110,7 @@ async def search_questions(search:str):
                         score = fuzz.token_sort_ratio(search, words)
                         if score > similarity:
                             result.append(question)
-                similarity -= 10
+                similarity -= 20
                 
             return result
 
