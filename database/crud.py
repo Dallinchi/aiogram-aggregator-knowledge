@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy import select
+from rapidfuzz import fuzz
+
 
 from database import models
 from database.database import engine, Base
@@ -66,6 +68,19 @@ async def get_question_by_id(question_id: int):
             question = await session.get(models.Question, question_id)
             
             return question
+        
+# Метод для получения запросов по ID пользователя
+async def get_question_by_user_id(user_id: int, skip: int = 0, limit: int = 100):
+    async with async_session() as session:
+        async with session.begin():
+            sql = (
+                select(models.Question)
+                .filter(models.Question.owner_id == user_id)
+                .order_by(models.Question.id.desc())
+                .slice(skip, skip + limit)
+            )
+            questions = await session.execute(sql)
+            return questions.scalars()
 
 # Метод для получения списка запросов
 async def get_questions(skip: int = 0, limit: int = 100):
@@ -76,8 +91,25 @@ async def get_questions(skip: int = 0, limit: int = 100):
                 .order_by(models.Question.id.desc())
                 .slice(skip, skip + limit)
             )
-            users = await session.execute(sql)
-            return users.scalars()
+            questions = await session.execute(sql)
+            return questions.scalars()
+        
+# Метод для получения списка запросов по не четкому поиску title и text
+async def search_questions(search:str):
+    async with async_session() as session:
+        async with session.begin():
+            sql = select(models.Question)
+            questions = await session.execute(sql)
+            questions = questions.scalars().all()
+            result = []
+
+            for question in questions:
+                words = question.title.split() + question.text.split()
+                for word in words:
+                    score = fuzz.token_sort_ratio(search, word)
+                    if score > 60:
+                        result.append(question)
+            return result
 
 
 # Метод для создания ответа
@@ -106,5 +138,5 @@ async def get_answers_by_question_id(question_id: int, skip: int = 0, limit: int
                 .order_by(models.Answer.id.desc())
                 .slice(skip, skip + limit)
             )
-            users = await session.execute(sql)
-            return users.scalars()
+            answers = await session.execute(sql)
+            return answers.scalars()
