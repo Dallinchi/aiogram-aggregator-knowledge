@@ -61,3 +61,11 @@ async def command_search_questions(message: Message) -> None:
     questions = await crud.search_questions('как носить')
     for q in questions:
         await message.answer(q.title)
+        
+
+@router.message()
+async def command_search_questions(message: Message) -> None:
+    await message.answer(f'Поиск по запросам -> {message.text}')
+    questions = await crud.search_questions(message.text)
+    for q in questions:
+        await message.answer(f'{q.title} \n\t {q.text}')

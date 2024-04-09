@@ -102,13 +102,16 @@ async def search_questions(search:str):
             questions = await session.execute(sql)
             questions = questions.scalars().all()
             result = []
+            similarity = 80
 
-            for question in questions:
-                words = question.title.split() + question.text.split()
-                for word in words:
-                    score = fuzz.token_sort_ratio(search, word)
-                    if score > 60:
-                        result.append(question)
+            while not result:
+                for question in questions:
+                        words = f'{question.title} {question.text}' 
+                        score = fuzz.token_sort_ratio(search, words)
+                        if score > similarity:
+                            result.append(question)
+                similarity -= 10
+                
             return result
 
 
@@ -128,7 +131,7 @@ async def get_answer_by_id(answer_id: int):
             return await session.get(models.Answer, answer_id)
 
 
-# Метод для получения списка ответов запроса по его ID
+# Метод для получения списка ответов по ID запроса
 async def get_answers_by_question_id(question_id: int, skip: int = 0, limit: int = 100):
     async with async_session() as session:
         async with session.begin():
