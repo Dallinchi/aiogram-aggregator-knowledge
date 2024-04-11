@@ -181,10 +181,10 @@ async def upvoted_answer_by_id(answer_id: int, user_id: int, upvoted: bool) -> b
             if user_answer_reputation:
                 if user_answer_reputation.upvoted == upvoted:
                     pass
-                elif not upvoted:
-                    answer.reputation -= 2  # Если пользователь раньше проголосовал ЗА после чего проголосовал ПРОТИВ
                 elif upvoted:
                     answer.reputation += 2  # Если пользователь раньше проголосовал ПРОТИВ после чего проголосовал ЗА
+                else:
+                    answer.reputation -= 2  # Если пользователь раньше проголосовал ЗА после чего проголосовал ПРОТИВ
 
                 user_answer_reputation.upvoted = upvoted
             else:
@@ -196,7 +196,7 @@ async def upvoted_answer_by_id(answer_id: int, user_id: int, upvoted: bool) -> b
                 if upvoted:
                     answer.reputation += 1
                 else:
-                    answer.reputation += 1
+                    answer.reputation -= 1
 
             await session.commit()
             return True
