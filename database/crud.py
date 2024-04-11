@@ -2,14 +2,15 @@ from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.exc import IntegrityError 
 from sqlalchemy import select
 from rapidfuzz import fuzz
 
 from database import models
 from database.database import engine, Base
 from database.schemas.user import User
-from database.schemas.question import Question
-from database.schemas.answer import Answer
+from database.schemas.question import Question, CreateQuestion
+from database.schemas.answer import Answer, CreateAnswer
 
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -21,13 +22,17 @@ async def create_tables() -> None:
 
 
 # Метод регистрации пользователя в бд
-# ДОБАВИТЬ ИСКЛЮЧЕНИЕ ДЛЯ ПРОВЕРКИ НАЛИЧИЯ ПОЛЬЗОВТЕЛЯ
-async def create_user(user: User) -> None:
+async def create_user(user: User) -> bool:
     async with async_session() as session:
         async with session.begin():
-            new_user = models.User(id=user.id, username=user.username)
-            session.add(new_user)
-            await session.commit()
+            try:
+                new_user = models.User(id=user.id, username=user.username)
+                session.add(new_user)
+                await session.commit()
+                return True
+            except IntegrityError:
+                return False
+                
 
 
 # Метод для получения пользователя по ID
@@ -51,7 +56,7 @@ async def get_users(skip: int = 0, limit: int = 100) -> List[User]:
 
 
 # Метод для создания запроса
-async def create_question(question: Question) -> None:
+async def create_question(question: CreateQuestion) -> None:
     async with async_session() as session:
         async with session.begin():
             db_question = models.Question(**question.model_dump())
@@ -70,12 +75,15 @@ async def get_question_by_id(question_id: int) -> Question | None:
 
 
 # Метод для получения запросов по ID пользователя
-async def get_question_by_user_id(user_id: int, skip: int = 0, limit: int = 100) -> List[Question] :
+async def get_questions_by_user_id(
+    user_id: int, published: bool = True, skip: int = 0, limit: int = 100
+) -> List[Question]:
     async with async_session() as session:
         async with session.begin():
             sql = (
                 select(models.Question)
                 .filter(models.Question.owner_id == user_id)
+                .filter(models.Question.published == published)
                 .order_by(models.Question.id.desc())
                 .slice(skip, skip + limit)
             )
@@ -84,25 +92,31 @@ async def get_question_by_user_id(user_id: int, skip: int = 0, limit: int = 100)
 
 
 # Метод для получения списка запросов
-async def get_questions(skip: int = 0, limit: int = 100) -> List[Question]:
+async def get_questions(
+    published: bool = True, skip: int = 0, limit: int = 100
+) -> List[Question]:
     async with async_session() as session:
         async with session.begin():
-            sql = select(models.Question).slice(skip, skip + limit)
+            sql = (
+                select(models.Question)
+                .filter(models.Question.published == published)
+                .slice(skip, skip + limit)
+            )
             questions = await session.execute(sql)
             return list(questions.scalars())
 
 
 # Метод для получения списка запросов по не четкому поиску title и text
-async def search_questions(search: str) -> List[Question]:
+async def search_questions(search: str, published: bool = True) -> List[Question]:
     async with async_session() as session:
         async with session.begin():
-            sql = select(models.Question)
+            sql = select(models.Question).filter(models.Question.published == published)
             questions = await session.execute(sql)
             questions = questions.scalars().all()
             result = []
             similarity = 80
 
-            while not result:
+            while not result and similarity < 20:
                 for question in questions:
                     words = f"{question.title} {question.text}"
                     score = fuzz.token_sort_ratio(search, words)
@@ -113,8 +127,22 @@ async def search_questions(search: str) -> List[Question]:
             return result
 
 
+# Метод для изменения статуса "опубликовано" запроса по ID
+async def publish_question_by_id(question_id: int, published: bool = True) -> bool:
+    async with async_session() as session:
+        async with session.begin():
+            question = await session.get(models.Question, question_id)
+            
+            if not question:
+                return False
+            
+            question.published = published
+            return True
+            await session.commit()
+
+
 # Метод для создания ответа
-async def create_answer(answer: Answer) -> None:
+async def create_answer(answer: CreateAnswer) -> None:
     async with async_session() as session:
         async with session.begin():
             db_answer = models.Answer(**answer.model_dump())
@@ -130,10 +158,13 @@ async def get_answer_by_id(answer_id: int) -> Answer | None:
 
 
 # Метод для изменения репутации ответа по ID
-async def upvoted_answer_by_id(answer_id: int, user_id: int, upvoted: bool) -> None:
+async def upvoted_answer_by_id(answer_id: int, user_id: int, upvoted: bool) -> bool:
     async with async_session() as session:
         async with session.begin():
             answer = await session.get(models.Answer, answer_id)
+
+            if not answer:
+                return False
 
             sql = (
                 select(models.UserAnswerReputation)
@@ -164,17 +195,35 @@ async def upvoted_answer_by_id(answer_id: int, user_id: int, upvoted: bool) -> N
                     answer.reputation += 1
 
             await session.commit()
+            return True
 
 
 # Метод для получения списка ответов по ID запроса
-async def get_answers_by_question_id(question_id: int, skip: int = 0, limit: int = 100) -> List[Answer]:
+async def get_answers_by_question_id(
+    question_id: int, published: bool = True, skip: int = 0, limit: int = 100
+) -> List[Answer]:
     async with async_session() as session:
         async with session.begin():
             sql = (
                 select(models.Answer)
                 .filter(models.Answer.question_id == question_id)
+                .filter(models.Answer.published == published)
                 .order_by(models.Answer.id.desc())
                 .slice(skip, skip + limit)
             )
             answers = await session.execute(sql)
             return list(answers.scalars())
+
+
+# Метод для изменения статуса "опубликовано" ответа по ID
+async def publish_answer_by_id(answer_id: int, published: bool = True) -> bool:
+    async with async_session() as session:
+        async with session.begin():
+            answer = await session.get(models.Answer, answer_id)
+
+            if not answer:
+                return False
+
+            answer.published = published
+            await session.commit()
+            return True

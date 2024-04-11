@@ -18,6 +18,7 @@ class Question(Base):
     media = Column(String)
     reaction = Column(String)
     status = Column(Boolean, index=True)
+    published = Column(Boolean, index=True)
     
     owner_id = Column(Integer, ForeignKey('users.id'))
 
@@ -27,6 +28,7 @@ class Answer(Base):
     id = Column(Integer, primary_key=True, index=True)
     answer = Column(String, index=True)
     reputation = Column(Integer, index=True, default=0)
+    published = Column(Boolean, index=True)
     
     question_id = Column(Integer, ForeignKey('questions.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
