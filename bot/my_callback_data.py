@@ -3,61 +3,79 @@ from aiogram.filters.callback_data import CallbackData
 
 
 class CommandCBD_types(IntEnum):
+    main_menu = auto()
+
     create_new_question = auto()
     question_list = auto()
     my_questions_asks = auto()
     my_questions_anss = auto()
-    main_menu_info = auto()
+    info = auto()
 
-    ques_list_find = auto()
-    ques_list_decr = auto()
-    ques_list_incr = auto()
-    ques_list_insert = auto()
-    ques_list_cancel = auto()
-    anss_decr = auto()
-    anss_incr = auto()
-    anss_insert = auto()
-    anss_cancel = auto()
-    asks_decr = auto()
-    asks_incr = auto()
-    asks_insert = auto()
-    asks_cancel = auto()
+    ques_list_step = auto()
+    ques_list_page = auto()
+    ques_list_goto = auto()
+    
+    anss_step = auto()
+    anss_page = auto()
+    anss_goto = auto()
 
+    asks_step = auto()
+    asks_page = auto()
+    asks_goto = auto()
 
-class QuestionsListDecreaseCB(CallbackData, prefix=CommandCBD_types.ques_list_decr):
-    id: int
-    first: bool
-    last: bool
-
-class QuestionsListInsertCB(CallbackData, prefix=CommandCBD_types.ques_list_insert):
-    id: int
-class QuestionsListIncreaseCB(CallbackData, prefix=CommandCBD_types.ques_list_incr):
-    id: int
-    first: bool
-    last: bool
-
-class AsksDecreaseCB(CallbackData, prefix=CommandCBD_types.asks_decr):
-    id: int
-    first: bool
-    last: bool
-
-class AsksInsertCB(CallbackData, prefix=CommandCBD_types.asks_insert):
-    id: int
+    question = auto()
 
 
-class AsksIncreaseCB(CallbackData, prefix=CommandCBD_types.asks_incr):
-    id: int
-    first: bool
-    last: bool
+class MainMenuCB(CallbackData, prefix=str(CommandCBD_types.main_menu)):
+    ...
 
-class AnssDecreaseCB(CallbackData, prefix=CommandCBD_types.anss_decr):
-    id: int
-    first: bool
-    last: bool
-class AnssInsertCB(CallbackData, prefix=CommandCBD_types.anss_insert):
+
+class CreateNewQuestionCB(CallbackData, prefix=str(CommandCBD_types.create_new_question)):
+    ...
+class QuestionListCB(CallbackData, prefix=str(CommandCBD_types.question_list)):
+    ...
+class MyQuestionsAsksCB(CallbackData, prefix=str(CommandCBD_types.my_questions_asks)):
+    ...
+class MyQuestionsAnssCB(CallbackData, prefix=str(CommandCBD_types.my_questions_anss)):
+    ...
+class InfoCB(CallbackData, prefix=str(CommandCBD_types.info)):
+    ...
+
+
+class QuestionsListStepCB(CallbackData, prefix=str(CommandCBD_types.ques_list_step)):
+    id: int = 1
+    first: bool = True
+    last: bool = False
+
+class QuestionsListPageCB(CallbackData, prefix=str(CommandCBD_types.ques_list_page)):
+    ...
+
+class QuestionsListGotoCB(CallbackData, prefix=str(CommandCBD_types.ques_list_goto)):
     id: int
 
-class AnssIncreaceCB(CallbackData, prefix=CommandCBD_types.anss_incr):
+
+class AsksStepCB(CallbackData, prefix=str(CommandCBD_types.asks_step)):
+    id: int = 1
+    first: bool = True
+    last: bool = False
+
+class AsksPageCB(CallbackData, prefix=str(CommandCBD_types.asks_page)):
+    ...
+
+class AsksGotoCB(CallbackData, prefix=str(CommandCBD_types.asks_goto)):
     id: int
-    first: bool
-    last: bool
+
+
+class AnssStepCB(CallbackData, prefix=str(CommandCBD_types.anss_step)):
+    id: int = 1
+    first: bool = True
+    last: bool = False
+
+class AnssPageCB(CallbackData, prefix=str(CommandCBD_types.anss_page)):
+    ...
+
+class AnssGotoCB(CallbackData, prefix=str(CommandCBD_types.anss_goto)):
+    id: int
+
+class QuestionCB(CallbackData, prefix=str(CommandCBD_types.question)):
+    ...
