@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, ARRAY
 
 from database.database import Base
 
@@ -15,10 +15,10 @@ class Question(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
-    tag = Column(String, index=True)
+    tag = Column(ARRAY(String))
     text = Column(String, index=True)
-    media = Column(String)
-    reaction = Column(String)
+    media = Column(ARRAY(String))
+    reaction = Column(Integer, default=0)
     status = Column(Boolean, index=True)
     published = Column(Boolean, index=True)
 
