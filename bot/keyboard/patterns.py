@@ -1,6 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# Menu_0
 # Главное меню
 main_menu = (
     #text
