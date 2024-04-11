@@ -114,15 +114,19 @@ async def search_questions(search: str, published: bool = True, max_question:int
             questions = await session.execute(sql)
             questions = questions.scalars().all()
             result = []
-            similarity = 80
+            similarity = 60
 
-            while not result and similarity > 0 and len(result) <= max_question:
+            while not result and similarity > 0:
                 for question in questions:
+                    
+                    if len(result) >= max_question:
+                        break
+
                     words = f"{question.title} {question.text}"
                     score = fuzz.token_sort_ratio(search, words)
                     if score > similarity:
                         result.append(question)
-                similarity -= 20
+                similarity -= 30
 
             return result
 
