@@ -8,7 +8,7 @@ class CreateQuestion(BaseModel):
     media: str | None = None
     reaction: str | None = None
     status: bool = False
-    published:bool = False
+    published: bool = False
     owner_id: int
 
     class Config:
