@@ -12,7 +12,7 @@ from bot.handlers import large_file
 
 async def main():
     session = AiohttpSession(
-        api=TelegramAPIServer.from_base('https://tlinmo.ru:8081')
+        api=TelegramAPIServer.from_base('https://tlinmo.ru:8081', is_local=True)
     )
 
     if DEBUG:
