@@ -43,7 +43,7 @@ async def get_user_by_id(user_id: int) -> User | None:
 
 
 # Метод для получения списка пользователей
-async def get_users(skip: int = 0, limit: int = 100) -> List[User]:
+async def get_users(skip: int = 0, limit: int = 10) -> List[User]:
     async with async_session() as session:
         async with session.begin():
             sql = (
@@ -76,7 +76,7 @@ async def get_question_by_id(question_id: int) -> Question | None:
 
 # Метод для получения запросов по ID пользователя
 async def get_questions_by_user_id(
-    user_id: int, published: bool = True, skip: int = 0, limit: int = 100
+    user_id: int, published: bool = True, skip: int = 0, limit: int = 10
 ) -> List[Question]:
     async with async_session() as session:
         async with session.begin():
@@ -93,7 +93,7 @@ async def get_questions_by_user_id(
 
 # Метод для получения списка запросов
 async def get_questions(
-    published: bool = True, skip: int = 0, limit: int = 100
+    published: bool = True, skip: int = 0, limit: int = 10
 ) -> List[Question]:
     async with async_session() as session:
         async with session.begin():
@@ -204,7 +204,7 @@ async def upvoted_answer_by_id(answer_id: int, user_id: int, upvoted: bool) -> b
 
 # Метод для получения списка ответов по ID запроса
 async def get_answers_by_question_id(
-    question_id: int, published: bool = True, skip: int = 0, limit: int = 100
+    question_id: int, published: bool = True, skip: int = 0, limit: int = 10
 ) -> List[Answer]:
     async with async_session() as session:
         async with session.begin():
