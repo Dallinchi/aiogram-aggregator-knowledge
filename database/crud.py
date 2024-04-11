@@ -107,22 +107,26 @@ async def get_questions(
 
 
 # Метод для получения списка запросов по не четкому поиску title и text
-async def search_questions(search: str, published: bool = True) -> List[Question]:
+async def search_questions(search: str, published: bool = True, max_question:int = 15) -> List[Question]:
     async with async_session() as session:
         async with session.begin():
             sql = select(models.Question).filter(models.Question.published == published)
             questions = await session.execute(sql)
             questions = questions.scalars().all()
             result = []
-            similarity = 80
+            similarity = 60
 
             while not result and similarity > 0:
                 for question in questions:
+                    
+                    if len(result) >= max_question:
+                        break
+
                     words = f"{question.title} {question.text}"
                     score = fuzz.token_sort_ratio(search, words)
                     if score > similarity:
                         result.append(question)
-                similarity -= 20
+                similarity -= 30
 
             return result
 
