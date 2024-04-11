@@ -16,7 +16,6 @@ Levenshtein==0.25.0
 magic-filter==1.0.12
 multidict==6.0.5
 numpy==1.26.4
-psycopg2==2.9.9
 pydantic==2.5.3
 pydantic_core==2.14.6
 python-dotenv==1.0.1

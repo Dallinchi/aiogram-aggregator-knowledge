@@ -116,7 +116,7 @@ async def search_questions(search: str, published: bool = True) -> List[Question
             result = []
             similarity = 80
 
-            while not result and similarity < 20:
+            while not result and similarity > 0:
                 for question in questions:
                     words = f"{question.title} {question.text}"
                     score = fuzz.token_sort_ratio(search, words)

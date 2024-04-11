@@ -126,5 +126,7 @@ async def command_publish_answer(message: Message) -> None:
 async def command_search_questions(message: Message) -> None:
     await message.answer(f"Поиск по запросам -> {message.text}")
     questions = await crud.search_questions(message.text)
+    if not questions:
+        await message.answer(f"Ничего не найдено")
     for q in questions:
         await message.answer(f"{q.id}|{q.title} \n\t {q.text}")
