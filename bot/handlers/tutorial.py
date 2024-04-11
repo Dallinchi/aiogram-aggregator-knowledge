@@ -67,6 +67,12 @@ async def command_get_questions(message: Message) -> None:
     questions = await crud.get_questions(limit=20, skip=0)
     for q in questions:
         await message.answer(f"{q.id}|{q.title} \n\t {q.text} {q.published}")
+        
+
+@router.message(Command("get_count_questions"))
+async def command_get_count_questions(message: Message) -> None:
+    count_questions = await crud.get_count_question()
+    await message.answer(f"{count_questions} - Количество опубликованных запросов")
 
 
 @router.message(Command("publish_quetion"))
