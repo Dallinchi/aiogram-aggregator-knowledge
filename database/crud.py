@@ -141,8 +141,8 @@ async def publish_question_by_id(question_id: int, published: bool = True) -> bo
                 return False
             
             question.published = published
-            return True
             await session.commit()
+            return True
 
 
 # Метод для создания ответа
