@@ -30,3 +30,11 @@ class Answer(Base):
     
     question_id = Column(Integer, ForeignKey('questions.id'))
     user_id = Column(Integer, ForeignKey('users.id'))
+    
+class UserAnswerReputation(Base):
+    __tablename__ = 'user_answer_reputation'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    answer_id = Column(Integer, ForeignKey('answers.id'))
+    upvoted = Column(Boolean)

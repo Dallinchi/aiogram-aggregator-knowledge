@@ -5,6 +5,7 @@ from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
 from database import crud
+from database.schemas.answer import Answer
 from database.schemas.question import Question
 from database.schemas.user import User
 
@@ -54,6 +55,33 @@ async def command_get_questions(message: Message) -> None:
     questions = await crud.get_questions(limit=20, skip=2)
     for q in questions:
         await message.answer(f'{q.id}|{q.title} \n\t {q.text}')
+        
+@router.message(Command('create_answer'))
+async def command_create_answer(message: Message) -> None:
+    await crud.create_answer(Answer(
+        answer='Текст ответа на запрос',
+        question_id=1,
+        user_id=message.from_user.id,
+    ))
+    await message.answer(f"Ответ создан!")
+    
+@router.message(Command('get_answers'))
+async def command_get_answers(message: Message) -> None:
+    answers = await crud.get_answers_by_question_id(1)
+    for answer in answers:
+        await message.answer(f'{answer.id}|{answer.answer} \n\t {answer.reputation}')
+        
+
+@router.message(Command('upvoted_answer_true'))
+async def command_upvoted_answer_true(message: Message) -> None:
+    await crud.upvoted_answer_by_id(answer_id=2, user_id=message.from_user.id, upvoted=True)
+    await message.answer(f"Проголосовано!")
+    
+@router.message(Command('upvoted_answer_false'))
+async def command_upvoted_answer_false(message: Message) -> None:
+    await crud.upvoted_answer_by_id(answer_id=2, user_id=message.from_user.id, upvoted=False)
+    await message.answer(f"Проголосовано!")
+        
 
 @router.message()
 async def command_search_questions(message: Message) -> None:
@@ -61,4 +89,3 @@ async def command_search_questions(message: Message) -> None:
     questions = await crud.search_questions(message.text)
     for q in questions:
         await message.answer(f'{q.id}|{q.title} \n\t {q.text}')
-        
