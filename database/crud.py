@@ -88,7 +88,6 @@ async def get_questions(skip: int = 0, limit: int = 100):
         async with session.begin():
             sql = (
                 select(models.Question)
-                .order_by(models.Question.id.desc())
                 .slice(skip, skip + limit)
             )
             questions = await session.execute(sql)
