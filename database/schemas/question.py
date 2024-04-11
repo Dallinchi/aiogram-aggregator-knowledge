@@ -1,12 +1,14 @@
+from typing import List
+
 from pydantic import BaseModel
 
     
 class CreateQuestion(BaseModel):
     title: str
-    tag: str
+    tag: List[str] = []
     text: str
-    media: str | None = None
-    reaction: str | None = None
+    media: List[str] = []
+    reaction: int = 0
     status: bool = False
     published: bool = False
     owner_id: int

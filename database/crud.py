@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
-from sqlalchemy.exc import IntegrityError 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from rapidfuzz import fuzz
 
@@ -32,7 +32,6 @@ async def create_user(user: User) -> bool:
                 return True
             except IntegrityError:
                 return False
-                
 
 
 # Метод для получения пользователя по ID
@@ -107,7 +106,9 @@ async def get_questions(
 
 
 # Метод для получения списка запросов по не четкому поиску title и text
-async def search_questions(search: str, published: bool = True, max_question:int = 15) -> List[Question]:
+async def search_questions(
+    search: str, published: bool = True, max_question: int = 15
+) -> List[Question]:
     async with async_session() as session:
         async with session.begin():
             sql = select(models.Question).filter(models.Question.published == published)
@@ -118,7 +119,7 @@ async def search_questions(search: str, published: bool = True, max_question:int
 
             while not result and similarity > 0:
                 for question in questions:
-                    
+
                     if len(result) >= max_question:
                         break
 
@@ -131,15 +132,24 @@ async def search_questions(search: str, published: bool = True, max_question:int
             return result
 
 
+# Метод для получения количества запросов
+async def get_count_question(published: bool = True) -> int:
+    async with async_session() as session:
+        async with session.begin():
+            sql = select(models.Question).filter(models.Question.published == published)
+            answers = await session.execute(sql)
+            return len(list(answers.scalars().all()))
+
+
 # Метод для изменения статуса "опубликовано" запроса по ID
 async def publish_question_by_id(question_id: int, published: bool = True) -> bool:
     async with async_session() as session:
         async with session.begin():
             question = await session.get(models.Question, question_id)
-            
+
             if not question:
                 return False
-            
+
             question.published = published
             await session.commit()
             return True
@@ -200,6 +210,15 @@ async def upvoted_answer_by_id(answer_id: int, user_id: int, upvoted: bool) -> b
 
             await session.commit()
             return True
+
+
+# Метод для получения количества ответов
+async def get_count_answers(published: bool = True) -> int:
+    async with async_session() as session:
+        async with session.begin():
+            sql = select(models.Answer).filter(models.Answer.published == published)
+            answers = await session.execute(sql)
+            return len(list(answers.scalars().all()))
 
 
 # Метод для получения списка ответов по ID запроса

@@ -48,9 +48,10 @@ async def command_get_user(message: Message) -> None:
 async def command_create_question(message: Message) -> None:
     question = CreateQuestion(
         title="Что делать если ...",
-        tag="легкий запрос",
+        tag=['Легко'],
         text="Как правильно носить каску?",
         owner_id=message.from_user.id,
+        published=True,
     )
     await crud.create_question(question)
     await message.answer(f"Запрос создан!")
@@ -67,6 +68,12 @@ async def command_get_questions(message: Message) -> None:
     questions = await crud.get_questions(limit=20, skip=0)
     for q in questions:
         await message.answer(f"{q.id}|{q.title} \n\t {q.text} {q.published}")
+        
+
+@router.message(Command("get_count_questions"))
+async def command_get_count_questions(message: Message) -> None:
+    count_questions = await crud.get_count_question()
+    await message.answer(f"{count_questions} - Количество опубликованных запросов")
 
 
 @router.message(Command("publish_quetion"))
@@ -129,4 +136,4 @@ async def command_search_questions(message: Message) -> None:
     if not questions:
         await message.answer(f"Ничего не найдено")
     for q in questions:
-        await message.answer(f"{q.id}|{q.title} \n\t {q.text}")
+        await message.answer(f"{q.id}|{q.title} {q.tag} \n\t {q.text}")
