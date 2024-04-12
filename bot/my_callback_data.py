@@ -12,18 +12,16 @@ class CommandCBD_types(IntEnum):
     info = auto()
 
     ques_list_step = auto()
-    ques_list_page = auto()
     ques_list_goto = auto()
     
     anss_step = auto()
-    anss_page = auto()
     anss_goto = auto()
 
     asks_step = auto()
-    asks_page = auto()
     asks_goto = auto()
 
     question = auto()
+    answer = auto()
 
 
 class MainMenuCB(CallbackData, prefix=str(CommandCBD_types.main_menu)):
@@ -41,41 +39,37 @@ class MyQuestionsAnssCB(CallbackData, prefix=str(CommandCBD_types.my_questions_a
 class InfoCB(CallbackData, prefix=str(CommandCBD_types.info)):
     ...
 
-
 class QuestionsListStepCB(CallbackData, prefix=str(CommandCBD_types.ques_list_step)):
-    id: int = 1
-    first: bool = True
+    page: int = 1
+    first: bool = False
     last: bool = False
 
-class QuestionsListPageCB(CallbackData, prefix=str(CommandCBD_types.ques_list_page)):
-    ...
-
 class QuestionsListGotoCB(CallbackData, prefix=str(CommandCBD_types.ques_list_goto)):
-    id: int
+    ...
 
 
 class AsksStepCB(CallbackData, prefix=str(CommandCBD_types.asks_step)):
-    id: int = 1
-    first: bool = True
+    page: int = 1
+    first: bool = False
     last: bool = False
 
-class AsksPageCB(CallbackData, prefix=str(CommandCBD_types.asks_page)):
-    ...
-
 class AsksGotoCB(CallbackData, prefix=str(CommandCBD_types.asks_goto)):
-    id: int
+    ...
 
 
 class AnssStepCB(CallbackData, prefix=str(CommandCBD_types.anss_step)):
-    id: int = 1
-    first: bool = True
+    id: int
+    page: int = 1
+    first: bool = False
     last: bool = False
 
-class AnssPageCB(CallbackData, prefix=str(CommandCBD_types.anss_page)):
+class AnssGotoCB(CallbackData, prefix=str(CommandCBD_types.anss_goto)):
     ...
 
-class AnssGotoCB(CallbackData, prefix=str(CommandCBD_types.anss_goto)):
-    id: int
 
 class QuestionCB(CallbackData, prefix=str(CommandCBD_types.question)):
-    ...
+    id: int
+
+
+class AnswerCB(CallbackData, prefix=str(CommandCBD_types.answer)):
+    id: int

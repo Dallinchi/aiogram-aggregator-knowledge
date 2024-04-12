@@ -8,7 +8,7 @@ from bot.my_callback_data import *
 
 
 def main_menu_kb() -> IKMarkup:
-    main_menu_marcup = IKMarkup(inline_keyboard=[
+    main_menu_markup = IKMarkup(inline_keyboard=[
         [
             IKButton(text="Создать запрос на знания",
                      callback_data=CreateNewQuestionCB().pack()),
@@ -26,13 +26,14 @@ def main_menu_kb() -> IKMarkup:
                      callback_data=InfoCB().pack())
         ]
     ])
-    return main_menu_marcup
+    print(main_menu_markup.inline_keyboard[0][1])
+    return main_menu_markup
 
 # Список запросов на знания
 def questions_list_kb(qs: list[Question], page: int, max_pages: int) -> IKMarkup:
     def q_button(q: Question) -> IKButton:
         return IKButton(text=f"{q.reaction}⬆ {'✅' if q.status else '❌'} {q.title}",
-                        callback_data=QuestionCB().pack())
+                        callback_data=QuestionCB(id=q.id).pack())
     
     rows = []
 
@@ -44,7 +45,7 @@ def questions_list_kb(qs: list[Question], page: int, max_pages: int) -> IKMarkup
             # Если нулевая, то алертнуть при попытке вернуться, что на нулевой
             IKButton(text="←",
                      callback_data=QuestionsListStepCB(
-                         id=page-1,
+                         page=page-1,
                          first=page==1,
                          last=False
                      ).pack()),
@@ -52,7 +53,7 @@ def questions_list_kb(qs: list[Question], page: int, max_pages: int) -> IKMarkup
                      callback_data=QuestionsListPageCB().pack()),
             IKButton(text="→",
                      callback_data=QuestionsListStepCB(
-                         id=page+1,
+                         page=page+1,
                          first=False,
                          last=page==max_pages
                      ).pack()),
@@ -131,3 +132,41 @@ def info():
                   callback_data="main_menu")]
     ])
     return info_markup
+
+def answers_list_kb(anss: list[Question], page: int, max_pages: int) -> IKMarkup:
+    def a_button(a: Answer) -> IKButton:
+        return IKButton(text=f"{a.reputation}⬆ {a.text}",
+                        callback_data=AnswerCB(id=a.id).pack())
+    
+    rows = []
+
+    for a in anss:
+        rows.append([a_button(a)])
+    
+    rows.append(
+        [
+            # Если нулевая, то алертнуть при попытке вернуться, что на нулевой
+            IKButton(text="←",
+                     callback_data=QuestionsListStepCB(
+                         page=page-1,
+                         first=page==1,
+                         last=False
+                     ).pack()),
+            IKButton(text=f"{page}/{max_pages}",
+                     callback_data=QuestionsListPageCB().pack()),
+            IKButton(text="→",
+                     callback_data=QuestionsListStepCB(
+                         page=page+1,
+                         first=False,
+                         last=page==max_pages
+                     ).pack()),
+            # Если последняя, то алертнуть при попытке перейти, что на последней
+        ])
+    rows.append(
+        [
+            IKButton(text="Вернуться",
+                     callback_data=MainMenuCB().pack())
+        ])
+
+    questions_list_markup = IKMarkup(inline_keyboard=rows)
+    return questions_list_markup
